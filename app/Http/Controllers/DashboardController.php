@@ -2,30 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Owner;
-use App\Models\Pet;
-use App\Models\Appointment;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $totalPets = Pet::count();
-        $totalOwners = Owner::count();
-        $todaysAppointments = Appointment::with('pet.owner')
-            ->whereDate('appointment_date', Carbon::today())
-            ->orderBy('appointment_date', 'asc')
-            ->paginate(15);
-
-        return view('dashboard', [
-            'totalPets' => $totalPets,
-            'totalOwners' => $totalOwners,
-            'todaysAppointments' => $todaysAppointments,
-        ]);
+        $user = auth()->user();
+        
+        // Check if user has access to dashboard (only vets and receptionists)
+        if (!$user->isVet() && !$user->isReceptionist()) {
+            // Redirect assistants to pets page
+            return redirect()->route('pets.index')->with('error', 'You do not have access to the dashboard.');
+        }
+        
+        // Dashboard logic here
+        return view('dashboard');
     }
 }

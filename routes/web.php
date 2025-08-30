@@ -8,7 +8,6 @@ use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClientRegistrationController;
-use App\Models\User;
 
 // Public Client Registration Routes
 Route::get('/client-register', [ClientRegistrationController::class, 'create'])->name('client.create');
@@ -16,19 +15,17 @@ Route::post('/client-register', [ClientRegistrationController::class, 'store'])-
 Route::post('/client-register/find', [ClientRegistrationController::class, 'findOwner'])->name('client.find');
 Route::get('/client-register/success', [ClientRegistrationController::class, 'success'])->name('client.success');
 
-// Authenticated Staff Routes
+// Authenticated Staff Routes - NO ROLE MIDDLEWARE
 Route::middleware(['auth'])->group(function () {
     
-    // Routes for Vets and Receptionists ONLY
-    Route::middleware(['role:' . User::ROLE_VET . ',' . User::ROLE_RECEPTIONIST])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/calendar', [AppointmentController::class, 'index'])->name('calendar');
-        Route::get('/api/appointments', [AppointmentController::class, 'getEvents']);
-        Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
-        Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
-    });
+    // Dashboard and Calendar - will check roles in controller
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/calendar', [AppointmentController::class, 'index'])->name('calendar');
+    Route::get('/api/appointments', [AppointmentController::class, 'getEvents']);
+    Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
+    Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
 
-    // Routes accessible by ALL staff (Vet, Receptionist, Assistant)
+    // Routes accessible by ALL staff
     Route::get('/pets', [PetController::class, 'index'])->name('pets.index');
     Route::get('/pets/create', [PetController::class, 'create'])->name('pets.create');
     Route::post('/pets', [PetController::class, 'store'])->name('pets.store');
