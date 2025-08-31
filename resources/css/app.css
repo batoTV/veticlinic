@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles for VetClinic */
+.stats-card {
+    @apply bg-gradient-to-br from-base-100 to-base-200 shadow-xl;
+}
+
+.nav-link.active {
+    @apply bg-primary text-primary-content rounded-lg;
+}
+
+.pet-card {
+    @apply transform transition-all duration-300 hover:scale-105 hover:shadow-2xl;
+}
+
+.appointment-card {
+    @apply border-l-4 border-primary bg-base-100 shadow-lg hover:shadow-xl transition-shadow;
+}

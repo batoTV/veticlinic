@@ -1,65 +1,109 @@
 @extends('layouts.app')
 
 @section('title', 'Pets')
+@section('header', 'Pet Management')
 
-@section('header-actions')
-     <a href="/pets/create" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition-colors duration-300 flex items-center">
-        <i class="fas fa-plus mr-2"></i> Add New Pet
-    </a>
+@section('breadcrumbs')
+    <li>Pets</li>
 @endsection
 
 @section('content')
-<div class="bg-white p-6 rounded-lg shadow-md">
-    
-    <!-- Search and Filter Form -->
-    <form action="/pets" method="GET" class="mb-6">
-        <div class="relative">
-            <input type="text" name="search" placeholder="Search for a pet by name or owner..." value="{{ request('search') }}" class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+<div class="container mx-auto">
+    {{-- Header with Search --}}
+    <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-body">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
+                <div class="flex-1 w-full">
+                    <form method="GET" action="{{ route('pets.index') }}" class="flex gap-2">
+                        <input type="text" name="search" value="{{ request('search') }}" 
+                               placeholder="Search pets by name, owner, or species..." 
+                               class="input input-bordered w-full" />
+                        <select name="species" class="select select-bordered">
+                            <option value="">All Species</option>
+                            <option value="dog" {{ request('species') == 'dog' ? 'selected' : '' }}>Dogs</option>
+                            <option value="cat" {{ request('species') == 'cat' ? 'selected' : '' }}>Cats</option>
+                            <option value="bird" {{ request('species') == 'bird' ? 'selected' : '' }}>Birds</option>
+                            <option value="rabbit" {{ request('species') == 'rabbit' ? 'selected' : '' }}>Rabbits</option>
+                            <option value="other" {{ request('species') == 'other' ? 'selected' : '' }}>Other</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+                <a href="{{ route('pets.create') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add New Pet
+                </a>
+            </div>
         </div>
-    </form>
-
-    <!-- Pet List Table -->
-    <div class="overflow-x-auto">
-        <table class="w-full text-left">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="p-4 font-semibold">Pet Name</th>
-                    <th class="p-4 font-semibold">Species</th>
-                    <th class="p-4 font-semibold">Breed</th>
-                    <th class="p-4 font-semibold">Owner</th>
-                    <th class="p-4 font-semibold text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($pets as $pet)
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-4">{{ $pet->name }}</td>
-                        <td class="p-4">{{ $pet->species }}</td>
-                        <td class="p-4">{{ $pet->breed }}</td>
-                        <td class="p-4">{{ $pet->owner->name }}</td>
-                        <td class="p-4 text-center">
-                            <a href="{{ url('/pets/' . $pet->id) }}"class="text-indigo-600 hover:text-indigo-800 mr-4" title="View Profile">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{{ url('/pets/' . $pet->id . '/edit') }}" class="text-green-600 hover:text-green-800 mr-4" title="Edit">
-                                <i class="fas fa-pen"></i>
-                            </a>
-                            <button type="button" class="text-red-600 hover:text-red-800 delete-button" data-url="{{ url('/pets/' . $pet->id) }}" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="p-4 text-center text-gray-500">No pets found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-        <div class="mt-6">
+    </div>
+    
+    {{-- Pets Grid --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        @forelse($pets ?? [] as $pet)
+        <div class="card bg-base-100 shadow-xl pet-card">
+            <figure class="px-4 pt-4">
+                <div class="avatar">
+                    <div class="w-32 rounded-xl">
+                        @if($pet->photo)
+                            <img src="{{ Storage::url($pet->photo) }}" alt="{{ $pet->name }}" />
+                        @else
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($pet->name) }}&background=10b981&color=fff&size=128" alt="{{ $pet->name }}" />
+                        @endif
+                    </div>
+                </div>
+            </figure>
+            <div class="card-body">
+                <h2 class="card-title">
+                    {{ $pet->name }}
+                    @if($pet->gender == 'male')
+                        <i class="fas fa-mars text-blue-500"></i>
+                    @else
+                        <i class="fas fa-venus text-pink-500"></i>
+                    @endif
+                </h2>
+                <div class="badge badge-{{ $pet->species == 'dog' ? 'primary' : ($pet->species == 'cat' ? 'secondary' : 'accent') }} badge-outline">
+                    {{ ucfirst($pet->species) }}
+                </div>
+                <p class="text-sm opacity-70">{{ $pet->breed ?? 'Mixed' }}</p>
+                
+                <div class="divider my-2"></div>
+                
+                <div class="text-sm space-y-1">
+                    <p><i class="fas fa-user text-primary"></i> {{ $pet->client->full_name ?? 'Unknown' }}</p>
+                    <p><i class="fas fa-birthday-cake text-accent"></i> {{ $pet->age ?? 'Unknown age' }}</p>
+                    <p><i class="fas fa-weight text-info"></i> {{ $pet->weight ? $pet->weight . ' kg' : 'Not recorded' }}</p>
+                </div>
+                
+                <div class="card-actions justify-end mt-4">
+                    <a href="{{ route('pets.show', $pet) }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <a href="{{ route('pets.edit', $pet) }}" class="btn btn-ghost btn-sm">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        @empty
+        <div class="col-span-full">
+            <div class="alert alert-info shadow-lg">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>No pets found. Start by adding a new pet!</span>
+                </div>
+            </div>
+        </div>
+        @endforelse
+    </div>
+    
+    {{-- Pagination --}}
+    @if(isset($pets) && $pets->hasPages())
+    <div class="flex justify-center mt-6">
         {{ $pets->links() }}
     </div>
-    </div>
+    @endif
 </div>
 @endsection

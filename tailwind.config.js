@@ -1,21 +1,38 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
-import forms from '@tailwindcss/forms';
-
 /** @type {import('tailwindcss').Config} */
-export default {
-    content: [
-        './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
-        './storage/framework/views/*.php',
-        './resources/views/**/*.blade.php',
-    ],
-
-    theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-            },
-        },
+module.exports = {
+  content: [
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+    "./resources/**/*.vue",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        'vet-primary': '#10b981',
+        'vet-secondary': '#3b82f6',
+        'vet-accent': '#f59e0b',
+      },
     },
-
-    plugins: [forms],
-};
+  },
+  plugins: [require("daisyui")],
+  daisyui: {
+    themes: [
+      {
+        veticlinic: {
+          "primary": "#10b981",
+          "secondary": "#3b82f6",
+          "accent": "#f59e0b",
+          "neutral": "#2b3440",
+          "base-100": "#ffffff",
+          "info": "#3abff8",
+          "success": "#36d399",
+          "warning": "#fbbd23",
+          "error": "#f87272",
+        },
+      },
+      "light",
+      "dark",
+      "emerald",
+    ],
+  },
+}
